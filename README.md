@@ -57,3 +57,78 @@ pug<br />
 <br />
 이렇게 작성한 템플릿을 전달하기 위해 기존 send()를 사용하는 대신 render()를 사용한다.<br />
 
+<br />
+
+## # 2.15 Partials with Pug<br />
+layout 에서 `block content` 선언해준 후 페이지 컴포넌트에서 `extends`를 이용해 가져왔을때
+children에 들어갈 내용을 작성할 수 있다.<br />
+```javascript
+extends layouts/main
+    block content
+        p Login
+```
+<br />
+
+`#{console.log(" ")}` <br />
+pug 안에서 자바스크립트를 쓸 수 있다<br />
+
+<br />
+
+## # 2.16 Local Variables in Pug<br />
+locals 미들웨어<br />
+global 변수로 사용하도록 해주는 것<br />
+라우터들 보다 상위에 위치시켜야 모든 라우터에도 공통적용이 가능함<br />
+next()를 통해 다음 함수로 넘겨줘야만 사용가능하다.<br />
+
+middleware.js<br />
+
+```javascript
+const localsMiddleware = (req, res, next) => {
+    res.locals.siteName = "WeTube";
+    next();
+}
+```
+
+`res.locals` 에 변수를 정의해주고<br />
+`#{siteName}` 으로 템플릿 내에서 사용할 수 있다.<br />
+
+<br />
+
+## # 2.17 Template Variables in Pug<br />
+```javascript
+res.render("home”, {siteName : home});
+```
+<br />
+여기서 render할때 첫번째 인자는 views 안에 있는 템플릿 파일을 가르킨다.<br />
+두번째 인자는 해당 템플릿에 변수를 정의할 객체이다.<br />
+
+<br />
+
+## # 2.18 Search Controller<br />
+```javascript
+export const search = (req, res) => {
+    const {
+        query: { term: searchingBy }
+    } = req;
+    res.render("search", { pageTitle: "Search", searchingBy });
+};
+```
+
+videoController.js<br />
+search form에서 보낸 req로 쿼리값을 구조분해하여 받아온다. 그리고 변수로 search 에 값을 보내준다.<br />
+
+<br />
+
+## # 2.22 Home Controller part Two<br />
+mixin<br />
+pug의 함수, 자주 반복되어 재활용되는 코드를 묶어둘 수 있다. <br />
+
+
+join의 get과, post 방식을 쪼개서 처리한다.<br />
+bodyParser를 이용하면 post로 오는 데이터들을 `body`로 가져올 수 있다.
+
+```javascript
+const {
+    body: { name, email, password, password2 }
+} = req;
+```
