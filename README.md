@@ -132,3 +132,137 @@ const {
     body: { name, email, password, password2 }
 } = req;
 ```
+
+<br />
+
+## # 3.0 MongoDB and Mongoose
+M1 맥북에서 Homebrew를 설치하고 mongoDB 설치하는 방법
+<br />
+✅ /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+<br />
+✅ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+<br />
+✅ arch -x86_64 brew install mongodb-community@4.4 <br /><br />
+🔗 출처 : stackoverflow <br />
+https://stackoverflow.com/questions/64963370/error-cannot-install-in-homebrew-on-arm-processor-in-intel-default-prefix-usr <br />
+<br /><br />
+⚠️ 다음 mongo로 실행한 후 에러가 뜨게되면 서버를 실행시켜준다.<br />
+brew services start mongodb-community<br />
+⚠️ DB 종료 <br />
+exit<br />
+
+MongoDB는 Database이고 Mongoose는 Database와 연결하게 해주는 것이다.
+MongoDB는 NoSQL Database이고 규칙이 적고 유연해서 많은 부분을 수정할 수 있다
+같은 서버에서 다양한 종류의 Database들을 사용할 수 있다.
+
+<br />
+
+## # 3.1 Connecting to MongoDB <br />
+mongoose.connect()<br />
+어디에 database가 저장되어있는지 알려준다<br />
+
+``` javascript
+mongoose.connect("mongodb://localhost:27017/we-tube”, {
+    useNewUrlParser: true,
+    useFindAndModify: false
+});
+```
+``` javascript 
+localhost:27017(포트번호) / we-tube(데이터베이스이름), {
+    configuration 설정
+}
+```
+
+`const db = mongoose.connection;` <br />
+DB연결
+
+`db.once("open", handleOpen);` <br />
+once는 한번 실행한다.
+
+
+init.js에 `import "./db”;` 를 추가해 db를 사용한다.
+
+<br />
+
+## # 3.2 Configuring Dot Env <br />
+**dotenv** <br />
+dotenv를 사용하면 원하는 내용을 변수로 만들어 숨길 수 있다.<br />
+반드시 gitignore에 `.env`가 포함됐는지 확인해야한다.
+
+`import dotenv from “dotenv”;`<br />
+`dotenv.config();`<br />
+dotenv.config 를 써주면 `process.env.변수` 로 저장한 env 변수를 가져올 수 있다.
+
+<br />
+
+## # 3.3 Video Model <br />
+DB를 생성하려면 우선 스키마를 작성해주어야한다.
+
+model/video.js
+``` javascript
+import mongoose from "mongoose";
+
+const VideoSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: "Tilte is required"
+    },
+});
+```
+사용할 항목의 타입을 작성하고, 필수로 필요한 항목이라면 required 를 쓴 후 에러메세지를 쓴다.
+
+``` javascript
+description: String,
+```
+
+상세 정의할 항목이 없다면 단순히 타입만 지정해주어도 좋다.
+
+``` javascript
+views: {
+    type: Number,
+    default: 0
+},
+```
+항목의 기본값을 정해줄 수도 있다.
+
+``` javascript
+createdAt: {
+    type: Date,
+    default: Date.now
+},
+```
+
+날짜를 넣어줄 수도 있다.<br />
+현재 날짜를 반환하는 function을 써서 기본값을 반환한다.
+
+``` javascript
+const model = mongoose.model("Video", VideoSchema);
+export default model;
+```
+video라는 이름의 모델을 만들고 비디오 스키마를 대입해준다.
+
+``` javascript
+import "./models/Video";
+```
+그리고 실제로 사용하려면 `init.js`에 import 해주어야한다.
+
+<br />
+
+## # 3.4 Comment Model<br />
+서로 다른 데이터가 문맥상 연관성을 지니고 있을 때,
+서로의 ref를 통해 연결 시켜준다.
+
+models/video.js
+``` javascript
+comments: [
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
+    }
+]
+ ```
+
+type은 mongoose.Schema.Types.ObjectId 이고<br />
+어느 model에서 참조해온건지 ref로 적어준다.<br /><br />
+video에 해당하는 모든 comment id가 담긴 [] 배열을 추가한다.<br />
+다만, 데이터를 통으로 연결 시켜주는 것이 아닌, id(=데이터의 이름)만 넘겨주는 방식이다.
