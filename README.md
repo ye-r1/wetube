@@ -262,7 +262,10 @@ comments: [
 ]
  ```
 
-type은 mongoose.Schema.Types.ObjectId 이고<br />
-어느 model에서 참조해온건지 ref로 적어준다.<br /><br />
+**mongoose.Schema.Types.ObjectId**<br />
+mongoDB에 정의된 데이터타입 중 하나이고 객체를 구분하기 위해 사용된다.<br />
+4바이트의 타임스탬프, 5바이트의 랜덤값, 3바이트의 랜덤에서 순차적으로 증가하는 값으로 이루어 진다.<br /><br />
+
 video에 해당하는 모든 comment id가 담긴 [] 배열을 추가한다.<br />
-다만, 데이터를 통으로 연결 시켜주는 것이 아닌, id(=데이터의 이름)만 넘겨주는 방식이다.
+다만, 데이터를 통으로 연결 시켜주는 것이 아닌, id(=데이터의 이름)만 넘겨주는 방식이다.<br /><br />
+어느 model에서 참조해온건지 ref로 적어준다.<br />
