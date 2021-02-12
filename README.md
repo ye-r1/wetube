@@ -269,3 +269,93 @@ mongoDB에 정의된 데이터타입 중 하나이고 객체를 구분하기 위
 video에 해당하는 모든 comment id가 담긴 [] 배열을 추가한다.<br />
 다만, 데이터를 통으로 연결 시켜주는 것이 아닌, id(=데이터의 이름)만 넘겨주는 방식이다.<br /><br />
 어느 model에서 참조해온건지 ref로 적어준다.<br />
+
+<br />
+
+## # 3.5 Home Controller Finished<br />
+
+``` javascript
+import Video from “../models/video”;
+
+export const home = async (req, res) => {
+    try {
+        const videos = await Video.find({});
+        res.render("home", { pageTitle: "Home", videos });
+    } catch (error) {
+        console.log(error);
+        res.render("home", { pageTitle: "Home", videos: [] });
+    }
+};
+```
+
+`Video.find({});` <br />
+Database에 있는 모든 video를 가져온다.<br />
+<br />
+async await<br />
+실행 기다리게 하는 것, 성공적으로 끝나야하는게 아닌 그냥 끝날때까지 기다릴뿐 에러가 생겨도 다음블록을 실행한다.<br />
+<br />
+에러를 잡기 위해 try catch를 사용해서 에러를 잡는다.<br />
+
+<br />
+
+## # 3.6 Uploading and Creating a Video<br />
+`<input type="file">`에 `accept="video/*”` 를 추가하면 비디오인 파일만 업로드 할 수 있다.<br />
+<br />
+file을 업로드하고 조작하려면 url을 반환하는 middleware인 multer가 있어야한다.<br/>
+`<form enctype="multipart/form-data>`<br />
+ 그리고 form 태에 enctype을 추가하는 이유는 file을 보내기 때문에 폼의 인코딩이 달라야한다.<br />
+<br /><br />
+**multer로 middleware 만드는법**<br />
+<br />
+middlewares.js<br />
+`const multerVideo = multer({ dest: "uploads/videos/" });`
+destination으로 전달할 경로를 적는다.
+
+`export const uploadVideo = multerVideo.single("videoFile");`<br/>
+export 할 때 single은 하나의 파일만 upload할 수 있다, file의 url을 반환한다.
+<br /><br />
+single함수 안에 들어가는 videoFile은 `<input type=“file”>` 태그의 name 값이다.
+<br /><br />
+이제 파일을 업로드하면 서버에 있는 folder`(uploads/videos/)`에 Upload 된다.
+그리고 postUpload라는 함수는 해당 file에 url 방식으로 접근한다.
+<br />
+multer가 자동적으로 이름은 임의로 바꾸고 확장자를 없애서 만든 file이 들어간다.
+<br /><br />
+그리고 video Controller.js에서 구조분해하여 file의 path를 가지고 온다.
+
+``` javascript
+const newVideo = await Video.create({
+    fileUrl: path,
+    title,
+    description
+});
+res.redirect(routes.videoDetail(newVideo.id));
+```
+
+async await으로 나누어서 데이터를 기다리고 Video 스키마와 같은 항목인 fileUrl과 title, description을 담아 DB를 만들어준다.
+<br /><br />
+그 후에 videoDetail 페이지에 대입해준다.<br />
+<br />
+
+## # 3.7 Uploading and Creating a Video part Two<br />
+
+use we-tube < DB 이름 > <br />
+`show collections` 사용하고 있는 모델 (컬렉션)이 나온다.<br />
+<br />
+`db.videos.remove({})`<br />
+db.<DB 이름> 지우기
+<br /><br />
+express 서버는 모든 주소에 route 경로 설정을 해야하기 때문에
+upload 할때의 route도 미리 설정해주어야한다.<br />
+<br />
+
+app.js<br />
+`app.use(“/uploads”, express.static(“uploads”));`<br /><br />
+누군가 uploads 경로를 사용할때, express.static은 디렉토리에서 file을 보내주는 미들웨어이다.<br />
+주어진 route에서 file만 전달해주는 역할이다, 따라서 이 경우엔 controller나 view를 확인하지 않는다.
+file만 확인한다.<br />
+<br />
+이렇게 설정하게되면 /uploads로 갔을때 upload라는 디렉토리 안으로 들어가게 된다.
+<br /><br />
+video를 다운받아서 import 시킨것이다.
+
