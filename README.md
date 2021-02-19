@@ -173,13 +173,17 @@ localhost:27017(포트번호) / we-tube(데이터베이스이름), {
 }
 ```
 
-`const db = mongoose.connection;` <br />
+`const db = mongoose.connection;`
+<br />
 DB연결
 
-`db.once("open", handleOpen);` <br />
-once는 한번 실행한다.
-
-
+``` javascript
+db.once("open", handleOpen);
+db.on("error", handleError);
+```
+once는 한번 실행한다.<br />
+db가 처음 오픈될때 실행할 함수, 에러발생시 실행될 함수이다.
+<br />
 init.js에 `import "./db”;` 를 추가해 db를 사용한다.
 
 <br />
@@ -188,9 +192,13 @@ init.js에 `import "./db”;` 를 추가해 db를 사용한다.
 **dotenv** <br />
 dotenv를 사용하면 원하는 내용을 변수로 만들어 숨길 수 있다.<br />
 반드시 gitignore에 `.env`가 포함됐는지 확인해야한다.
-
-`import dotenv from “dotenv”;`<br />
-`dotenv.config();`<br />
+<br /><br />
+**저장된 변수를 사용할때**<br />
+db.js
+``` javascript
+import dotenv from “dotenv”;
+dotenv.config();
+```
 dotenv.config 를 써주면 `process.env.변수` 로 저장한 env 변수를 가져올 수 있다.
 
 <br />
